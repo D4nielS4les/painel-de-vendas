@@ -68,11 +68,11 @@ export default function Relatorio() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex justify-between items-center bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center gap-4">
-            <h1 className="text-4xl font-bold text-indigo-800">Relatório de Vendas</h1>
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-150 p-4 sm:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <h1 className="text-2xl sm:text-4xl font-bold text-indigo-800 text-center sm:text-left">Relatório de Vendas</h1>
             <div className="flex items-center gap-2">
               <Button 
                 variant="outline" 
@@ -93,8 +93,8 @@ export default function Relatorio() {
               </Button>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="bg-indigo-50 px-4 py-2 rounded-md border border-indigo-200">
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <div className="bg-indigo-50 px-4 py-2 rounded-md border border-indigo-200 w-full sm:w-auto">
               <span className="text-sm text-indigo-600 font-medium">Total do Mês:</span>
               <span className="ml-2 text-lg font-bold text-indigo-700">
                 {new Intl.NumberFormat('pt-BR', {
@@ -103,51 +103,57 @@ export default function Relatorio() {
                 }).format(calculateMonthTotal())}
               </span>
             </div>
-            <Button 
-              onClick={handlePrint}
-              className="bg-indigo-600 text-white hover:bg-indigo-700"
-            >
-              <Printer className="h-4 w-4 mr-2" />
-              Imprimir
-            </Button>
-            <Link 
-              href="/" 
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm"
-            >
-              Voltar
-            </Link>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button 
+                onClick={handlePrint}
+                className="bg-indigo-600 text-white hover:bg-indigo-700 w-full sm:w-auto"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimir
+              </Button>
+              <Link 
+                href="/" 
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm text-center w-full sm:w-auto"
+              >
+                Voltar
+              </Link>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-indigo-200">
-                  <th className="text-left p-2 text-indigo-600">Data</th>
-                  <th className="text-left p-2 text-indigo-600">Veículo</th>
-                  <th className="text-left p-2 text-indigo-600">Placa</th>
-                  <th className="text-left p-2 text-indigo-600">Tipo</th>
-                  <th className="text-left p-2 text-indigo-600">Valor</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getMonthServices().map((service) => (
-                  <tr key={service.id} className="border-b border-indigo-100 hover:bg-indigo-50">
-                    <td className="p-2 text-gray-600">{formatDate(service.date)}</td>
-                    <td className="p-2">{service.vehicle}</td>
-                    <td className="p-2">{service.license_plate}</td>
-                    <td className="p-2">{service.type}</td>
-                    <td className="p-2 font-medium text-green-600">
-                      {new Intl.NumberFormat('pt-BR', {
-                        style: 'currency',
-                        currency: 'BRL'
-                      }).format(service.value)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="min-w-full inline-block align-middle">
+              <div className="overflow-hidden">
+                <table className="min-w-full divide-y divide-indigo-200">
+                  <thead>
+                    <tr className="bg-indigo-50">
+                      <th className="px-4 py-2 text-left text-sm font-medium text-indigo-600">Data</th>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-indigo-600">Veículo</th>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-indigo-600">Placa</th>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-indigo-600">Tipo</th>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-indigo-600">Valor</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-indigo-100">
+                    {getMonthServices().map((service) => (
+                      <tr key={service.id} className="hover:bg-indigo-50">
+                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-600">{formatDate(service.date)}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-sm">{service.vehicle}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-sm">{service.license_plate}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-sm">{service.type}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-green-600">
+                          {new Intl.NumberFormat('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                          }).format(service.value)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
