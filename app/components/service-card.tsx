@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
-import { Service } from '../types';
+import { Service, ServiceType } from '../types';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -68,7 +68,7 @@ export function ServiceCard({ service, onUpdate }: ServiceCardProps) {
               <label className="text-sm text-muted-foreground">Tipo:</label>
               <Select
                 value={editedService.type}
-                onValueChange={(value) => setEditedService({ ...editedService, type: value })}
+                onValueChange={(value: ServiceType) => setEditedService({ ...editedService, type: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
