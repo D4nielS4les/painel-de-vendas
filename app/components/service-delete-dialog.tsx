@@ -19,9 +19,7 @@ export function ServiceDeleteDialog({ service, open, onOpenChange, onDelete }: S
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      const services = await storage.getServices();
-      const updatedServices = services.filter((s: Service) => s.id !== service.id);
-      await storage.setServices(updatedServices);
+      await storage.deleteService(service.id);
       onDelete();
       onOpenChange(false);
     } catch (error) {

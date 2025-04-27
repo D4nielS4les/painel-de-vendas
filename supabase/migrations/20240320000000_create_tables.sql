@@ -13,12 +13,11 @@ CREATE TABLE services (
 -- Create goals table
 CREATE TABLE goals (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    month INTEGER NOT NULL,
-    year INTEGER NOT NULL,
-    target_value DECIMAL(10,2) NOT NULL,
+    type TEXT NOT NULL,
+    value DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(month, year)
+    UNIQUE(type)
 );
 
 -- Create function to update updated_at timestamp
@@ -44,4 +43,4 @@ CREATE TRIGGER update_goals_updated_at
 -- Create indexes
 CREATE INDEX idx_services_date ON services(date);
 CREATE INDEX idx_services_type ON services(type);
-CREATE INDEX idx_goals_month_year ON goals(month, year); 
+CREATE INDEX idx_goals_type ON goals(type); 

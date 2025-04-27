@@ -21,19 +21,32 @@ const randomInRange = (min: number, max: number) => {
 };
 
 const getCelebratedGoals = (): string[] => {
-  const celebrated = localStorage.getItem('celebratedGoals');
-  return celebrated ? JSON.parse(celebrated) : [];
+  try {
+    const celebrated = localStorage.getItem('celebratedGoals');
+    console.log('Metas celebradas:', celebrated);
+    return celebrated ? JSON.parse(celebrated) : [];
+  } catch (error) {
+    console.error('Erro ao ler metas celebradas:', error);
+    return [];
+  }
 };
 
 const addCelebratedGoal = (type: string) => {
-  const celebrated = getCelebratedGoals();
-  if (!celebrated.includes(type)) {
-    celebrated.push(type);
-    localStorage.setItem('celebratedGoals', JSON.stringify(celebrated));
+  try {
+    const celebrated = getCelebratedGoals();
+    if (!celebrated.includes(type)) {
+      celebrated.push(type);
+      localStorage.setItem('celebratedGoals', JSON.stringify(celebrated));
+      console.log('Meta celebrada adicionada:', type);
+    }
+  } catch (error) {
+    console.error('Erro ao adicionar meta celebrada:', error);
   }
 };
 
 export function GoalChart({ type, current, goal, onGoalUpdate }: GoalChartProps) {
+  console.log('GoalChart recebeu props:', { type, current, goal });
+  
   const [isEditing, setIsEditing] = useState(false);
   const [newGoal, setNewGoal] = useState(goal);
   const [hasReachedGoal, setHasReachedGoal] = useState(false);
@@ -41,17 +54,22 @@ export function GoalChart({ type, current, goal, onGoalUpdate }: GoalChartProps)
   const progress = Math.min((current / goal) * 100, 100);
   const progressColor = progress >= 100 ? 'bg-green-500' : 'bg-indigo-500';
 
+  console.log('GoalChart calculou:', { progress, progressColor });
+
   useEffect(() => {
     if (progress >= 100 && !hasReachedGoal) {
+      console.log('Meta atingida:', type);
       setHasReachedGoal(true);
       
       // Verificar se esta meta já foi celebrada
       const celebratedGoals = getCelebratedGoals();
+      console.log('Metas já celebradas:', celebratedGoals);
+      
       if (!celebratedGoals.includes(type)) {
+        console.log('Disparando confetes para:', type);
         // Disparar confetes apenas se for a primeira vez
         const duration = 3 * 1000;
         const animationEnd = Date.now() + duration;
-        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
         const interval: any = setInterval(function() {
           const timeLeft = animationEnd - Date.now();
@@ -60,17 +78,11 @@ export function GoalChart({ type, current, goal, onGoalUpdate }: GoalChartProps)
             return clearInterval(interval);
           }
 
-          const particleCount = 50 * (timeLeft / duration);
-          
+          // Disparar confetes
           confetti({
-            ...defaults,
-            particleCount,
-            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-          });
-          confetti({
-            ...defaults,
-            particleCount,
-            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
           });
         }, 250);
 

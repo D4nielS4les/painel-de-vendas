@@ -8,10 +8,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
 import { ServiceEditDialog } from './components/service-edit-dialog';
+import { ServiceDeleteDialog } from './components/service-delete-dialog';
 
 export default function Home() {
   const [services, setServices] = useState<Service[]>([]);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [deletingService, setDeletingService] = useState<Service | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadData = async () => {
@@ -29,11 +31,17 @@ export default function Home() {
     loadData();
   }, []);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (service: Service) => {
+    setDeletingService(service);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingService) return;
+    
     try {
-      const updatedServices = services.filter(service => service.id !== id);
-      await storage.setServices(updatedServices);
+      await storage.deleteService(deletingService.id);
       await loadData();
+      setDeletingService(null);
     } catch (error) {
       console.error('Erro ao deletar serviço:', error);
     }
@@ -153,7 +161,7 @@ export default function Home() {
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
-                                  onClick={() => handleDelete(service.id)}
+                                  onClick={() => handleDelete(service)}
                                   className="text-red-600 hover:text-red-800 hover:bg-red-100"
                                 >
                                   <Trash2 className="h-4 w-4" />
@@ -178,6 +186,15 @@ export default function Home() {
           open={!!editingService}
           onOpenChange={(open) => !open && setEditingService(null)}
           onUpdate={loadData}
+        />
+      )}
+
+      {deletingService && (
+        <ServiceDeleteDialog
+          service={deletingService}
+          open={!!deletingService}
+          onOpenChange={(open) => !open && setDeletingService(null)}
+          onDelete={handleDeleteConfirm}
         />
       )}
     </main>

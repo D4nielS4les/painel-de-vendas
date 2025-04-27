@@ -11,9 +11,13 @@ export default function Relatorio() {
   const [services, setServices] = useState<Service[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  const loadData = () => {
-    const savedServices = storage.getServices();
-    setServices(savedServices);
+  const loadData = async () => {
+    try {
+      const savedServices = await storage.getServices();
+      setServices(savedServices);
+    } catch (error) {
+      console.error('Erro ao carregar serviços:', error);
+    }
   };
 
   useEffect(() => {
