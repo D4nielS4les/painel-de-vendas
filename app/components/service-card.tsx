@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
@@ -26,23 +28,40 @@ const serviceTypes = [
 
 export function ServiceCard({ service, onUpdate }: ServiceCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedService, setEditedService] = useState(service);
+  const [editedService, setEditedService] = useState<Service>(service);
 
-  const handleSave = () => {
-    const services = storage.getServices();
-    const updatedServices = services.map((s: Service) =>
-      s.id === service.id ? editedService : s
-    );
-    storage.setServices(updatedServices);
-    setIsEditing(false);
-    onUpdate();
+  const handleEdit = () => {
+    setIsEditing(true);
   };
 
-  const handleDelete = () => {
-    const services = storage.getServices();
-    const updatedServices = services.filter((s: Service) => s.id !== service.id);
-    storage.setServices(updatedServices);
-    onUpdate();
+  const handleSave = async () => {
+    try {
+      const services = await storage.getServices();
+      const updatedServices = services.map((s: Service) =>
+        s.id === service.id ? editedService : s
+      );
+      await storage.setServices(updatedServices);
+      setIsEditing(false);
+      onUpdate();
+    } catch (error) {
+      console.error('Erro ao salvar serviço:', error);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditedService(service);
+    setIsEditing(false);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const services = await storage.getServices();
+      const updatedServices = services.filter((s: Service) => s.id !== service.id);
+      await storage.setServices(updatedServices);
+      onUpdate();
+    } catch (error) {
+      console.error('Erro ao deletar serviço:', error);
+    }
   };
 
   if (isEditing) {
@@ -93,7 +112,7 @@ export function ServiceCard({ service, onUpdate }: ServiceCardProps) {
               />
             </div>
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={handleCancel}>Cancelar</Button>
               <Button onClick={handleSave}>Salvar</Button>
             </div>
           </div>
@@ -107,7 +126,7 @@ export function ServiceCard({ service, onUpdate }: ServiceCardProps) {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold">{service.vehicle}</CardTitle>
         <div className="flex gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)}>
+          <Button variant="ghost" size="icon" onClick={handleEdit}>
             <Pencil className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" onClick={handleDelete}>
