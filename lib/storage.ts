@@ -1,19 +1,51 @@
+import { supabase } from './supabase';
+import { Service, ServiceGoal } from '@/app/types';
+
 export const storage = {
-  getServices: () => {
-    const services = localStorage.getItem('services');
-    return services ? JSON.parse(services) : [];
+  getServices: async () => {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Erro ao buscar serviços:', error);
+      return [];
+    }
+
+    return data || [];
   },
   
-  setServices: (services: any[]) => {
-    localStorage.setItem('services', JSON.stringify(services));
+  setServices: async (services: Service[]) => {
+    const { error } = await supabase
+      .from('services')
+      .upsert(services);
+
+    if (error) {
+      console.error('Erro ao salvar serviços:', error);
+    }
   },
   
-  getGoals: () => {
-    const goals = localStorage.getItem('goals');
-    return goals ? JSON.parse(goals) : null;
+  getGoals: async () => {
+    const { data, error } = await supabase
+      .from('goals')
+      .select('*');
+
+    if (error) {
+      console.error('Erro ao buscar metas:', error);
+      return null;
+    }
+
+    return data || null;
   },
   
-  setGoals: (goals: any[]) => {
-    localStorage.setItem('goals', JSON.stringify(goals));
+  setGoals: async (goals: ServiceGoal[]) => {
+    const { error } = await supabase
+      .from('goals')
+      .upsert(goals);
+
+    if (error) {
+      console.error('Erro ao salvar metas:', error);
+    }
   }
 };

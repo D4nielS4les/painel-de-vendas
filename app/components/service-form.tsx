@@ -31,30 +31,38 @@ export function ServiceForm({ onServiceAdded }: ServiceFormProps) {
     type: '' as ServiceType,
     value: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    const newService = {
-      id: crypto.randomUUID(),
-      vehicle: formData.vehicle,
-      license_plate: formData.licensePlate,
-      type: formData.type,
-      value: parseFloat(formData.value),
-      date: new Date().toISOString()
-    };
+    try {
+      const newService = {
+        id: crypto.randomUUID(),
+        vehicle: formData.vehicle,
+        license_plate: formData.licensePlate,
+        type: formData.type,
+        value: parseFloat(formData.value),
+        date: new Date().toISOString()
+      };
 
-    const services = storage.getServices();
-    storage.setServices([newService, ...services]);
+      const services = await storage.getServices();
+      await storage.setServices([newService, ...services]);
 
-    setFormData({
-      vehicle: '',
-      licensePlate: '',
-      type: '' as ServiceType,
-      value: ''
-    });
-    
-    onServiceAdded();
+      setFormData({
+        vehicle: '',
+        licensePlate: '',
+        type: '' as ServiceType,
+        value: ''
+      });
+      
+      onServiceAdded();
+    } catch (error) {
+      console.error('Erro ao adicionar serviço:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -72,6 +80,7 @@ export function ServiceForm({ onServiceAdded }: ServiceFormProps) {
               onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
               placeholder="Ex: Fiat Palio 2020"
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="space-y-2">
@@ -82,6 +91,7 @@ export function ServiceForm({ onServiceAdded }: ServiceFormProps) {
               onChange={(e) => setFormData({ ...formData, licensePlate: e.target.value })}
               placeholder="ABC-1234"
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="space-y-2">
@@ -89,6 +99,7 @@ export function ServiceForm({ onServiceAdded }: ServiceFormProps) {
             <Select 
               required
               onValueChange={(value) => setFormData({ ...formData, type: value as ServiceType })}
+              disabled={isSubmitting}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o tipo de serviço" />
@@ -113,10 +124,11 @@ export function ServiceForm({ onServiceAdded }: ServiceFormProps) {
               required
               min="0"
               step="0.01"
+              disabled={isSubmitting}
             />
           </div>
-          <Button type="submit" className="w-full">
-            Adicionar Serviço
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Adicionando...' : 'Adicionar Serviço'}
           </Button>
         </form>
       </CardContent>

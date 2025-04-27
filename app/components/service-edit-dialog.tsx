@@ -29,15 +29,23 @@ interface ServiceEditDialogProps {
 
 export function ServiceEditDialog({ service, open, onOpenChange, onUpdate }: ServiceEditDialogProps) {
   const [editedService, setEditedService] = useState(service);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSave = () => {
-    const services = storage.getServices();
-    const updatedServices = services.map((s: Service) =>
-      s.id === service.id ? editedService : s
-    );
-    storage.setServices(updatedServices);
-    onUpdate();
-    onOpenChange(false);
+  const handleSave = async () => {
+    setIsSubmitting(true);
+    try {
+      const services = await storage.getServices();
+      const updatedServices = services.map((s: Service) =>
+        s.id === service.id ? editedService : s
+      );
+      await storage.setServices(updatedServices);
+      onUpdate();
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Erro ao salvar serviço:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -55,6 +63,7 @@ export function ServiceEditDialog({ service, open, onOpenChange, onUpdate }: Ser
               onChange={(e) => setEditedService({ ...editedService, vehicle: e.target.value })}
               placeholder="Ex: Fiat Palio 2020"
               className="border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500"
+              disabled={isSubmitting}
             />
           </div>
           <div className="space-y-2">
@@ -65,6 +74,7 @@ export function ServiceEditDialog({ service, open, onOpenChange, onUpdate }: Ser
               onChange={(e) => setEditedService({ ...editedService, license_plate: e.target.value })}
               placeholder="ABC-1234"
               className="border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500"
+              disabled={isSubmitting}
             />
           </div>
           <div className="space-y-2">
@@ -72,6 +82,7 @@ export function ServiceEditDialog({ service, open, onOpenChange, onUpdate }: Ser
             <Select 
               value={editedService.type}
               onValueChange={(value) => setEditedService({ ...editedService, type: value as ServiceType })}
+              disabled={isSubmitting}
             >
               <SelectTrigger className="border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500">
                 <SelectValue />
@@ -96,6 +107,7 @@ export function ServiceEditDialog({ service, open, onOpenChange, onUpdate }: Ser
               min="0"
               step="0.01"
               className="border-indigo-200 focus:border-indigo-500 focus:ring-indigo-500"
+              disabled={isSubmitting}
             />
           </div>
           <div className="flex justify-end gap-2 pt-4">
@@ -103,14 +115,16 @@ export function ServiceEditDialog({ service, open, onOpenChange, onUpdate }: Ser
               variant="outline" 
               onClick={() => onOpenChange(false)}
               className="border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+              disabled={isSubmitting}
             >
               Cancelar
             </Button>
             <Button 
               onClick={handleSave}
               className="bg-indigo-600 text-white hover:bg-indigo-700"
+              disabled={isSubmitting}
             >
-              Salvar
+              {isSubmitting ? 'Salvando...' : 'Salvar'}
             </Button>
           </div>
         </div>

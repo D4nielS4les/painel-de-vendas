@@ -12,20 +12,31 @@ import { ServiceEditDialog } from './components/service-edit-dialog';
 export default function Home() {
   const [services, setServices] = useState<Service[]>([]);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const loadData = () => {
-    const savedServices = storage.getServices();
-    setServices(savedServices);
+  const loadData = async () => {
+    try {
+      const savedServices = await storage.getServices();
+      setServices(savedServices);
+    } catch (error) {
+      console.error('Erro ao carregar serviços:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
-  const handleDelete = (id: string) => {
-    const updatedServices = services.filter(service => service.id !== id);
-    storage.setServices(updatedServices);
-    loadData();
+  const handleDelete = async (id: string) => {
+    try {
+      const updatedServices = services.filter(service => service.id !== id);
+      await storage.setServices(updatedServices);
+      await loadData();
+    } catch (error) {
+      console.error('Erro ao deletar serviço:', error);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -50,6 +61,16 @@ export default function Home() {
       })
       .reduce((total, service) => total + service.value, 0);
   };
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-150 p-4 sm:p-8">
+        <div className="max-w-7xl mx-auto flex items-center justify-center h-screen">
+          <div className="text-2xl text-indigo-800">Carregando...</div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-150 p-4 sm:p-8">
